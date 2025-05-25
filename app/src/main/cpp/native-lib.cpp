@@ -1,11 +1,15 @@
 #include <jni.h>
 #include <string>
+#include "framework.h"
 #include <GLES/gl.h>
+#include "boids.h"
 
 // JNI_OnLoad はライブラリがロードされたときに呼び出される関数
 extern "C" JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 	return JNI_VERSION_1_6; // 使用するJNIバージョンを指定
 }
+
+//glm::mat4 modelViewMatrix;
 
 // onSurfaceCreatedの実装
 extern "C" JNIEXPORT void JNICALL
@@ -14,7 +18,10 @@ Java_com_example_gles10_1sample_MyGLRenderer_nativeOnSurfaceCreated( // ここ�
 		jobject /* this */) {
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
-	glShadeModel(GL_FLAT);
+	glShadeModel(GL_SMOOTH);
+
+	Boids_Init();
+//	modelViewMatrix = glm::mat4(1.0f);
 }
 
 // onSurfaceChangedの実装
@@ -25,41 +32,19 @@ Java_com_example_gles10_1sample_MyGLRenderer_nativeOnSurfaceChanged( // ここ�
 		jint width,
 		jint height) {
 	glViewport(0, 0, width, height);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrthof(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	Boids_Reshape(width, height);
+	//glMatrixMode(GL_PROJECTION);
+	//glLoadIdentity();
+	//glOrthof(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
+	//glMatrixMode(GL_MODELVIEW);
+	//glLoadIdentity();
 }
 
-// onDrawFrameの実装
 extern "C" JNIEXPORT void JNICALL
-Java_com_example_gles10_1sample_MyGLRenderer_nativeOnDrawFrame( // ここを修正
+Java_com_example_gles10_1sample_MyGLRenderer_nativeOnDrawFrame(
 		JNIEnv* env,
 		jobject /* this */) {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glLoadIdentity();
-
-	GLfloat vertices[] = {
-			0.0f, 0.5f, 0.0f,
-			-0.5f, -0.5f, 0.0f,
-			0.5f, -0.5f, 0.0f
-	};
-
-	GLfloat colors[] = {
-			1.0f, 0.0f, 0.0f, 1.0f,
-			0.0f, 1.0f, 0.0f, 1.0f,
-			0.0f, 0.0f, 1.0f, 1.0f
-	};
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-
-	glVertexPointer(3, GL_FLOAT, 0, vertices);
-	glColorPointer(4, GL_FLOAT, 0, colors);
-
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
+	Boids_FrameMove();
+	Boids_FrameDraw();
 }
+

@@ -6,8 +6,18 @@ add_library( # Sets the name of the library.
         # Sets the type of the library.
         SHARED
 
+        boids.cpp
+        TaskBase.cpp
+        TaskSystem.cpp
+
         # Specifies the source files for the library.
         native-lib.cpp )
+
+# glm のインクルードディレクトリを追加
+# glm フォルダが cpp ディレクトリ直下にある場合
+include_directories(
+        ${CMAKE_SOURCE_DIR}/glm
+)
 
 find_library( # Specifies the name of the NDK library that
         # you want CMake to locate.
